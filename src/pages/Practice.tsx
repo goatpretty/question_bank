@@ -466,7 +466,16 @@ export default function Practice() {
                         className="sr-only"
                         disabled={studyMode || gradingMode}
                       />
-                      <span className={`flex-shrink-0 w-8 h-8 rounded-full border ${ (studyMode || gradingMode) ? ((!Array.isArray(q.answer) && q.answer === option.id) ? 'border-green-400 bg-green-500 text-white' : (answersByQuestionId[q.id] === option.id && gradingMode ? 'border-red-500 bg-red-600 text-white' : 'border-gray-300 bg-white text-gray-700')) : (answersByQuestionId[q.id] === option.id ? 'border-blue-500 bg-blue-600 text-white' : 'border-gray-300 bg-white text-gray-700')} flex items-center justify-center text-sm font-medium`}>{option.id}</span>
+                      <span className={`flex-shrink-0 w-8 h-8 rounded-full border ${ (studyMode || gradingMode)
+                        ? ((!Array.isArray(q.answer) && q.answer === option.id)
+                            ? 'border-green-400 bg-green-500 text-white'
+                            : (answersByQuestionId[q.id] === option.id
+                                ? 'border-red-500 bg-red-600 text-white'
+                                : 'border-gray-300 bg-white text-gray-700'))
+                        : (answersByQuestionId[q.id] === option.id
+                            ? 'border-blue-500 bg-blue-600 text-white'
+                            : 'border-gray-300 bg-white text-gray-700')
+                      } flex items-center justify-center text-sm font-medium`}>{option.id}</span>
                       <div className="text-gray-700 flex-1"><MathRenderer content={option.content} /></div>
                     </label>
                   ))}
@@ -489,7 +498,16 @@ export default function Practice() {
                           className="sr-only"
                           disabled={studyMode || gradingMode}
                         />
-                        <span className={`flex-shrink-0 w-8 h-8 rounded-full border ${ (studyMode || gradingMode) ? ((Array.isArray(q.answer) && (q.answer as string[]).includes(option.id)) ? 'border-green-400 bg-green-500 text-white' : ((Array.isArray(answersByQuestionId[q.id]) && (answersByQuestionId[q.id] as string[]).includes(option.id) && gradingMode) ? 'border-red-500 bg-red-600 text-white' : 'border-gray-300 bg-white text-gray-700')) : ((Array.isArray(answersByQuestionId[q.id]) && (answersByQuestionId[q.id] as string[]).includes(option.id)) ? 'border-blue-500 bg-blue-600 text-white' : 'border-gray-300 bg-white text-gray-700')} flex items-center justify-center text-sm font-medium`}>{option.id}</span>
+                        <span className={`flex-shrink-0 w-8 h-8 rounded-full border ${ (studyMode || gradingMode)
+                          ? ((Array.isArray(q.answer) && (q.answer as string[]).includes(option.id))
+                              ? 'border-green-400 bg-green-500 text-white'
+                              : ((Array.isArray(answersByQuestionId[q.id]) && (answersByQuestionId[q.id] as string[]).includes(option.id))
+                                  ? 'border-red-500 bg-red-600 text-white'
+                                  : 'border-gray-300 bg-white text-gray-700'))
+                          : ((Array.isArray(answersByQuestionId[q.id]) && (answersByQuestionId[q.id] as string[]).includes(option.id))
+                              ? 'border-blue-500 bg-blue-600 text-white'
+                              : 'border-gray-300 bg-white text-gray-700')
+                        } flex items-center justify-center text-sm font-medium`}>{option.id}</span>
                         <div className="text-gray-700 flex-1"><MathRenderer content={option.content} /></div>
                       </label>
                     );

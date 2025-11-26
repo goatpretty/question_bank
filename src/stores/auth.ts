@@ -1,7 +1,7 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import { User, AuthResponse } from '../../shared/types';
-const API_HOST = import.meta.env.VITE_API_URL ?? `http://${window.location.hostname}:3001`;
+const API_HOST = import.meta.env.VITE_API_URL ? String(import.meta.env.VITE_API_URL) : '';
 
 interface AuthState {
   user: User | null;

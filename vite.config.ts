@@ -7,7 +7,15 @@ import { traeBadgePlugin } from 'vite-plugin-trae-solo-badge';
 export default defineConfig({
   server: {
     host: true,
-    port: 5173
+    port: 5173,
+    allowedHosts: ['question_bank.goatpretty.com'],
+    proxy: {
+      '/api': {
+        target: 'http://localhost:3001',
+        changeOrigin: true,
+        ws: true,
+      }
+    }
   },
   build: {
     sourcemap: 'hidden',

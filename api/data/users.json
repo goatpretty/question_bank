@@ -6,8 +6,8 @@
       "email": "admin@example.com",
       "role": "admin",
       "createdAt": "2025-11-26T06:10:00.009Z",
-      "updatedAt": "2025-11-26T06:10:00.009Z",
-      "password_hash": "$2a$10$1R3zZvH8TEcfzXf06PtBMe.UfbytFR0lxu42VikDHfee1SC.4p5/q"
+      "updatedAt": "2025-11-26T08:45:50.356Z",
+      "password_hash": "$2a$12$Ls67jyqzE70u4n8rneF5a.HnK0c6zJdFhr7S2CPGXIiSl8DsWRICS"
     },
     {
       "id": "u-teacher",
@@ -15,8 +15,8 @@
       "email": "teacher@example.com",
       "role": "teacher",
       "createdAt": "2025-11-26T06:10:00.009Z",
-      "updatedAt": "2025-11-26T06:11:50.880Z",
-      "password_hash": "$2a$12$y68rOSXPJ3ZYAJYF.yaJvOTxxC5rc3A.ZKv.UWwgSOiutuwgB/WpG"
+      "updatedAt": "2025-11-26T08:45:55.565Z",
+      "password_hash": "$2a$12$HZup9q9icqN/OxhzPZoSruiFG2tTdiBR3ymzwOBXcBhICgLZtpA8u"
     },
     {
       "id": "u-student",
@@ -26,6 +26,15 @@
       "createdAt": "2025-11-26T06:10:00.009Z",
       "updatedAt": "2025-11-26T06:11:49.158Z",
       "password_hash": "$2a$12$riBbealEAhBFcF2c3XKUWOgn.i14k69WT0tQux7rqJiVKGIoNB.Oi"
+    },
+    {
+      "id": "1764148754163",
+      "username": "stu2",
+      "email": "stu2@example.com",
+      "role": "student",
+      "createdAt": "2025-11-26T09:19:14.163Z",
+      "updatedAt": "2025-11-26T09:19:14.163Z",
+      "password_hash": "$2a$12$T2OBt5AvNlip0d0eYPRByeeRTfiUi/X2Cpff1fuSkJXBk9W01XeHO"
     }
   ]
 }

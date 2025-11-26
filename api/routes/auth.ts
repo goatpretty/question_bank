@@ -117,13 +117,22 @@ router.post('/register', async (req, res) => {
       });
     }
 
+    // 禁止非学生自助注册（教师/管理员只能由管理员创建）
+    const requestedRole = (role || 'student') as 'student' | 'teacher' | 'admin';
+    if (requestedRole !== 'student') {
+      return res.status(403).json({
+        success: false,
+        error: '当前已关闭教师/管理员自助注册，请联系管理员创建账号。'
+      });
+    }
+
     const hashedPassword = await bcrypt.hash(password, 12);
     
     const newUser: StoredUser = {
       id: Date.now().toString(),
       username,
       email,
-      role: role as 'student' | 'teacher' | 'admin',
+      role: 'student',
       createdAt: new Date(),
       updatedAt: new Date(),
       password_hash: hashedPassword
@@ -248,6 +257,48 @@ router.get('/users', authMiddleware, requireRole(['admin']), (req, res) => {
     res.json({ success: true, data: { users: safeUsers, total: safeUsers.length } });
   } catch (error) {
     res.status(500).json({ success: false, error: 'Failed to fetch users.' });
+  }
+});
+
+// 管理员创建用户（支持学生/教师），教师只能由管理员创建
+router.post('/users', authMiddleware, requireRole(['admin']), async (req, res) => {
+  try {
+    const { username, email, password, role = 'student' } = req.body || {};
+    if (!username || !email) {
+      return res.status(400).json({ success: false, error: '用户名和邮箱为必填项。' });
+    }
+    if (users.some(u => u.username === username || u.email === email)) {
+      return res.status(409).json({ success: false, error: '用户名或邮箱已存在。' });
+    }
+    const allowedRoles: Array<'student' | 'teacher'> = ['student', 'teacher'];
+    const finalRole = allowedRoles.includes(role) ? role : 'student';
+    const rawPwd = typeof password === 'string' && password.length >= 6 ? password : '123456';
+    const hash = await bcrypt.hash(rawPwd, 12);
+    const now = new Date();
+    const user: StoredUser = {
+      id: Date.now().toString(),
+      username,
+      email,
+      role: finalRole,
+      createdAt: now,
+      updatedAt: now,
+      password_hash: hash,
+    };
+    users.push(user);
+    saveUsers();
+    res.status(201).json({
+      success: true,
+      data: {
+        id: user.id,
+        username: user.username,
+        email: user.email,
+        role: user.role,
+        createdAt: user.createdAt,
+        updatedAt: user.updatedAt,
+      }
+    });
+  } catch (error) {
+    res.status(500).json({ success: false, error: '创建用户失败。' });
   }
 });
 
