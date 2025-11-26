@@ -1,0 +1,31 @@
+{
+  "users": [
+    {
+      "id": "u-admin",
+      "username": "admin",
+      "email": "admin@example.com",
+      "role": "admin",
+      "createdAt": "2025-11-26T06:10:00.009Z",
+      "updatedAt": "2025-11-26T06:10:00.009Z",
+      "password_hash": "$2a$10$1R3zZvH8TEcfzXf06PtBMe.UfbytFR0lxu42VikDHfee1SC.4p5/q"
+    },
+    {
+      "id": "u-teacher",
+      "username": "teacher",
+      "email": "teacher@example.com",
+      "role": "teacher",
+      "createdAt": "2025-11-26T06:10:00.009Z",
+      "updatedAt": "2025-11-26T06:11:50.880Z",
+      "password_hash": "$2a$12$y68rOSXPJ3ZYAJYF.yaJvOTxxC5rc3A.ZKv.UWwgSOiutuwgB/WpG"
+    },
+    {
+      "id": "u-student",
+      "username": "student",
+      "email": "student@example.com",
+      "role": "student",
+      "createdAt": "2025-11-26T06:10:00.009Z",
+      "updatedAt": "2025-11-26T06:11:49.158Z",
+      "password_hash": "$2a$12$riBbealEAhBFcF2c3XKUWOgn.i14k69WT0tQux7rqJiVKGIoNB.Oi"
+    }
+  ]
+}

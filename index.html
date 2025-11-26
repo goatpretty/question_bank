@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="zh-CN" class="scroll-smooth">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <meta name="theme-color" content="#f8fafc" media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content="#020617" media="(prefers-color-scheme: dark)" />
+    <meta name="description" content="基于AI技术的智能题库系统，提供个性化学习体验，智能化题库管理" />
+    <meta name="keywords" content="智能题库,AI学习,个性化教育,在线考试,错题管理,学习分析" />
+    <meta name="author" content="智能题库系统" />
+    <meta name="robots" content="index, follow" />
+    
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="智能题库系统 - AI驱动的个性化学习平台" />
+    <meta property="og:description" content="基于AI技术的智能题库系统，提供个性化学习体验，智能化题库管理" />
+    <meta property="og:locale" content="zh_CN" />
+    
+    <!-- Twitter -->
+    <meta property="twitter:card" content="summary_large_image" />
+    <meta property="twitter:title" content="智能题库系统 - AI驱动的个性化学习平台" />
+    <meta property="twitter:description" content="基于AI技术的智能题库系统，提供个性化学习体验，智能化题库管理" />
+    
+    <!-- Mobile specific -->
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+    <meta name="apple-mobile-web-app-title" content="智能题库" />
+    
+    <!-- Performance optimizations -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+    
+    <!-- Security -->
+    <meta http-equiv="X-Content-Type-Options" content="nosniff" />
+    <meta http-equiv="X-Frame-Options" content="DENY" />
+    <meta http-equiv="X-XSS-Protection" content="1; mode=block" />
+    
+    <title>智能题库系统 - AI驱动的个性化学习平台</title>
+    
+    <script type="module">
+      // Initialize theme detection early
+      (function() {
+        const savedTheme = localStorage.getItem('theme');
+        const systemTheme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+        const theme = savedTheme === 'system' ? systemTheme : (savedTheme || systemTheme);
+        
+        if (theme === 'dark') {
+          document.documentElement.classList.add('dark');
+        }
+        
+        // Set initial theme color
+        const metaThemeColor = document.querySelector('meta[name="theme-color"]');
+        if (metaThemeColor) {
+          metaThemeColor.setAttribute('content', theme === 'dark' ? '#020617' : '#f8fafc');
+        }
+      })();
+      
+      // Error handling for development
+      if (import.meta.hot?.on) {
+        import.meta.hot.on('vite:error', (error) => {
+          if (error.err) {
+            console.error(
+              [error.err.message, error.err.frame].filter(Boolean).join('\n'),
+            )
+          }
+        })
+      }
+    </script>
+    
+    <style>
+      /* Critical CSS for initial render */
+      body {
+        margin: 0;
+        padding: 0;
+        font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+        background-color: #f8fafc;
+        color: #334155;
+      }
+      
+      .dark body {
+        background-color: #020617;
+        color: #cbd5e1;
+      }
+      
+      /* Loading animation */
+      @keyframes pulse {
+        0%, 100% { opacity: 1; }
+        50% { opacity: 0.5; }
+      }
+      
+      .animate-pulse {
+        animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+      }
+      
+      /* Smooth transitions */
+      * {
+        transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="root">
+      <!-- Initial loading state -->
+      <div style="display: flex; align-items: center; justify-content: center; min-height: 100vh; background: linear-gradient(135deg, #0284c7 0%, #0ea5e9 100%); color: white;">
+        <div style="text-align: center;">
+          <div style="width: 64px; height: 64px; background: rgba(255,255,255,0.2); border-radius: 16px; display: flex; align-items: center; justify-content: center; margin: 0 auto 24px;">
+            <div style="width: 32px; height: 32px; background: white; border-radius: 8px; animation: pulse 2s infinite;"></div>
+          </div>
+          <div style="font-size: 18px; font-weight: 600; margin-bottom: 8px;">智能题库系统</div>
+          <div style="font-size: 14px; opacity: 0.8;">正在加载中...</div>
+        </div>
+      </div>
+    </div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>
