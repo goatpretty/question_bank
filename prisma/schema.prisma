@@ -1,0 +1,354 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "sqlite"
+}
+
+// ============================================
+// 用户与认证
+// ============================================
+
+model User {
+  id                 String   @id
+  username           String   @unique
+  email              String   @unique
+  password_hash      String   // snake_case 保持与现有代码兼容
+  role               String   // 'student' | 'teacher' | 'admin'
+  needPasswordChange Boolean  @default(false)
+  tokenVersion       Int      @default(0)
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
+
+  // 关系
+  examSubmissions    ExamSubmission[]
+  practiceSessions   PracticeSession[]
+  wrongBookItems     WrongBookItem[]
+  passwordResetTokens PasswordResetToken[]
+
+  @@map("users")
+}
+
+model PasswordResetToken {
+  id        String    @id @default(uuid())
+  userId    String
+  tokenHash String    @unique
+  expiresAt DateTime
+  usedAt    DateTime?
+  createdAt DateTime  @default(now())
+
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@map("password_reset_tokens")
+}
+
+model VerificationCode {
+  id        Int      @id @default(autoincrement())
+  email     String
+  code      String
+  type      String   // 'register' | 'reset' | 'login' | 'password-change' | 'email-change'
+  used      Boolean  @default(false)
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+
+  @@index([email, type])
+  @@index([email, type, used])
+  @@map("verification_codes")
+}
+
+// ============================================
+// 科目 / 章节 / 题目
+// ============================================
+
+model Topic {
+  id        String    @id
+  name      String
+  parentId  String?   // null = 科目, 非 null = 章节
+  sortOrder Int       @default(0)
+  createdAt DateTime  @default(now())
+
+  // 关系
+  questions         Question[]
+  parentTopic       Topic?    @relation("TopicHierarchy", fields: [parentId], references: [id])
+  childTopics       Topic[]   @relation("TopicHierarchy")
+  examRules         ExamRule[]
+
+  @@map("topics")
+}
+
+model Question {
+  id        String   @id
+  topicId   String
+  type      String   // 'single' | 'multiple' | 'fill' | 'subjective'
+  content   String
+  answer    String   // 统一存为 JSON 字符串：单选 '"opt_001"'，多选 '["opt_001","opt_003"]'，填空 '"50"'
+  analysis  String   @default("")
+  difficulty Int     @default(1)
+  score     Int      @default(5)
+  tags      String   @default("[]")  // JSON 字符串数组
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // 关系
+  topic            Topic                  @relation(fields: [topicId], references: [id])
+  options          QuestionOption[]
+  examSubQuestions ExamSubmissionQuestion[]
+  examAnswers      ExamAnswer[]
+  practiceAnswers  PracticeAnswer[]
+  wrongBookItems   WrongBookItem[]
+
+  @@index([topicId])
+  @@index([type])
+  @@map("questions")
+}
+
+model QuestionOption {
+  id         String @id @default(cuid())
+  questionId String
+  optionId   String   // 选项原始标识（如 'A'、'B'、'C'、'D'，也支持 'E'、'F' 等任意标识）
+  content    String
+  sortOrder  Int      @default(0)  // 选项原始顺序：0, 1, 2, 3, ...
+
+  question   Question @relation(fields: [questionId], references: [id], onDelete: Cascade)
+
+  @@unique([questionId, optionId])
+  @@index([questionId])
+  @@map("question_options")
+}
+
+// displayLabel 为运行时计算字段，不在数据库中持久化。
+// 计算规则：getOptionLabel(index) = 0→A, 1→B, ..., 25→Z, 26→AA, 27→AB, ...
+
+// ============================================
+// 考试定义
+// ============================================
+
+model Exam {
+  id          String   @id
+  name        String
+  description String   @default("")
+  duration    Int      // 分钟
+  isActive    Boolean  @default(true)
+  status      String   @default("draft")  // 'draft' | 'published'
+  createdBy   String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // 关系
+  rules       ExamRule[]
+  submissions ExamSubmission[]
+
+  @@index([status])
+  @@index([createdBy])
+  @@map("exams")
+}
+
+model ExamRule {
+  id        String @id
+  examId    String
+  topicId   String  // 一个规则绑定一个 topic（章节），多章节拆成多条 rule
+  topic     Topic   @relation(fields: [topicId], references: [id])
+  exam      Exam    @relation(fields: [examId], references: [id], onDelete: Cascade)
+
+  // 题型配置存为 JSON 字符串
+  // 格式: [{ "type": "single", "count": 10, "score": 5 }, ...]
+  questionTypesJson String
+
+  @@unique([examId, topicId])
+  @@index([examId])
+  @@map("exam_rules")
+}
+
+// ============================================
+// 考试提交与作答
+// ============================================
+
+model ExamSubmission {
+  id          String   @id
+  examId      String
+  userId      String
+  startTime   DateTime @default(now())
+  endTime     DateTime?  // 本次考试会话的截止时间或兼容字段，非考试定义的全局结束时间
+  status      String   @default("in_progress")  // 'in_progress' | 'completed' | 'abandoned'
+  score       Int      @default(0)
+  completedAt DateTime?  // 已完成时间
+  abandonedAt DateTime?  // 放弃时间
+
+  // 关系
+  exam      Exam                     @relation(fields: [examId], references: [id])
+  user      User                     @relation(fields: [userId], references: [id])
+  answers   ExamAnswer[]
+  questions ExamSubmissionQuestion[]
+
+  @@index([userId])
+  @@index([examId])
+  @@index([status])
+  @@index([userId, status])
+  @@map("exam_submissions")
+}
+
+model ExamSubmissionQuestion {
+  id                  String @id @default(cuid())
+  submissionId        String
+  questionId          String
+  order               Int
+  score               Int
+  shuffledOptionsJson String?  // 保存某次 submission 的展示快照: [{ "optionId": "...", "content": "...", "displayLabel": "A" }, ...]
+
+  submission ExamSubmission @relation(fields: [submissionId], references: [id], onDelete: Cascade)
+  question   Question       @relation(fields: [questionId], references: [id])
+
+  @@unique([submissionId, order])
+  @@unique([submissionId, questionId])
+  @@index([submissionId])
+  @@index([questionId])
+  @@map("exam_submission_questions")
+}
+
+model ExamAnswer {
+  id           String   @id
+  submissionId String
+  questionId   String
+
+  // 用户作答，统一存为 JSON 字符串
+  // 单选: '"opt_001"'，多选: '["opt_001","opt_003"]'，填空: '"50"'，主观: '"..."'
+  answerJson   String
+
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  submission ExamSubmission @relation(fields: [submissionId], references: [id], onDelete: Cascade)
+  question   Question       @relation(fields: [questionId], references: [id])
+
+  @@unique([submissionId, questionId])
+  @@index([submissionId])
+  @@index([questionId])
+  @@map("exam_answers")
+}
+
+// ============================================
+// 练习会话与作答
+// ============================================
+
+model PracticeSession {
+  id            String   @id
+  userId        String
+  totalQuestions Int
+  correctCount  Int      @default(0)
+  startTime     DateTime @default(now())
+  endTime       DateTime?
+  status        String   @default("in_progress")  // 'in_progress' | 'completed' | 'abandoned'
+
+  // topicIds 存为 JSON 字符串数组
+  topicIdsJson  String
+  // 已展示题目 ID 列表，用于跨重启保持抽题一致性
+  servedQuestionsJson String @default("[]")
+
+  // 关系
+  user    User             @relation(fields: [userId], references: [id])
+  answers PracticeAnswer[]
+
+  @@index([userId])
+  @@index([userId, status])
+  @@map("practice_sessions")
+}
+
+model PracticeAnswer {
+  id         String   @id
+  sessionId  String
+  questionId String
+
+  // 用户作答，JSON 字符串
+  userAnswerJson String
+  isCorrect  Boolean  @default(false)
+  answeredAt DateTime @default(now())
+
+  session    PracticeSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+  question   Question        @relation(fields: [questionId], references: [id])
+
+  @@unique([sessionId, questionId])
+  @@index([sessionId])
+  @@index([questionId])
+  @@map("practice_answers")
+}
+
+// ============================================
+// 错题本
+// ============================================
+
+model WrongBookItem {
+  id         String   @id
+  userId     String
+  questionId String
+  wrongCount Int      @default(1)
+  lastWrongAt DateTime @default(now())
+  isMastered Boolean  @default(false)
+  masteredAt DateTime?
+
+  user     User     @relation(fields: [userId], references: [id])
+  question Question @relation(fields: [questionId], references: [id])
+  occurrences WrongBookOccurrence[]
+
+  @@unique([userId, questionId])
+  @@index([userId])
+  @@index([userId, isMastered])
+  @@map("wrong_book_items")
+}
+
+model WrongBookOccurrence {
+  id              String   @id
+  userId          String
+  questionId      String
+  sourceType      String   // practice | exam
+  sourceSessionId String
+  sourceAnswerId  String
+  sourceTitle     String
+  submittedAt     DateTime
+  recordedAt      DateTime @default(now())
+  userAnswerJson  String
+  correctAnswerJson String
+  snapshotJson    String
+  snapshotStatus  String   // captured | reconstructed
+
+  item WrongBookItem @relation(fields: [userId, questionId], references: [userId, questionId], onDelete: Cascade)
+
+  @@unique([userId, sourceType, sourceSessionId, questionId])
+  @@index([userId, questionId, submittedAt])
+  @@map("wrong_book_occurrences")
+}
+
+model WrongBookCollectionJob {
+  id              String   @id
+  userId          String
+  sourceType      String
+  sourceSessionId String
+  payloadJson     String
+  receiptJson     String
+  status          String   @default("pending")
+  attempts        Int      @default(0)
+  lastError       String?
+  createdAt       DateTime @default(now())
+  completedAt     DateTime?
+
+  @@unique([userId, sourceType, sourceSessionId])
+  @@index([userId, status])
+  @@map("wrong_book_collection_jobs")
+}
+
+model WrongBookBackfillRun {
+  id            String   @id
+  userId        String
+  tokenHash     String   @unique
+  previewDigest String
+  resultJson    String
+  completedAt   DateTime @default(now())
+
+  @@index([userId])
+  @@map("wrong_book_backfill_runs")
+}

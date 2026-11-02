@@ -1,0 +1,104 @@
+{
+  "date": "2026-11-01",
+  "workspace": "E:/web/Question bank",
+  "node": "v22.20.0",
+  "gitRepositoryDetected": false,
+  "environment": {
+    "filesWithConfiguredSecrets": [
+      ".env"
+    ],
+    "secretNames": [
+      "SMTP_PASS",
+      "AI_API_KEY"
+    ],
+    "credentialValidityTested": false
+  },
+  "databaseSnapshot": {
+    "readOnly": true,
+    "users": 10,
+    "questions": 1514,
+    "examSubmissions": 53,
+    "practiceSessions": 359,
+    "practiceAnswers": 3481,
+    "wrongBookOccurrences": 573
+  },
+  "checks": {
+    "workingDirectoryTypecheck": {
+      "command": "npm run check",
+      "exitCode": 0
+    },
+    "serverTypecheck": {
+      "command": "npm run build:server -- --noEmit",
+      "result": "failed",
+      "diagnostics": [
+        "TS7016 api/check_punct.ts:1",
+        "TS18048 api/routes/questions.ts:1003,1004,1009,1010"
+      ]
+    },
+    "defaultJest": {
+      "command": "npm test -- --runInBand --silent",
+      "passedSuites": 5,
+      "failedSuites": 6,
+      "totalSuites": 11,
+      "executedTestsPassed": 38
+    },
+    "focusedJest": {
+      "command": "npx jest --config jest.learning-flow.config.cjs --runInBand --silent",
+      "passedSuites": 5,
+      "passedTests": 80,
+      "tsJestDiagnosticsEnabled": false
+    },
+    "lint": {
+      "command": "npm run lint",
+      "errors": 23481,
+      "warnings": 1020,
+      "includesLocalBackups": true
+    },
+    "sourceOnlyTypecheck": {
+      "generatedClientPresent": false,
+      "result": "failed with missing Prisma imports",
+      "freshInstallPerformed": false
+    },
+    "prismaGenerate": {
+      "isolatedCopy": true,
+      "result": "passed"
+    },
+    "frontendViteBuild": {
+      "isolatedCopy": true,
+      "realEnvironmentFilesCopied": false,
+      "result": "passed"
+    },
+    "emptyMigrationRehearsal": {
+      "inMemory": true,
+      "resultTables": [
+        "wrong_book_occurrences",
+        "wrong_book_collection_jobs",
+        "wrong_book_backfill_runs"
+      ],
+      "coreTablesCreated": false
+    },
+    "emittedServer": {
+      "isolatedCopy": true,
+      "declaredStartPath": "dist/api/server.js",
+      "declaredStartExists": false,
+      "emittedEntryPath": "dist/api/api/server.js",
+      "emittedEntryRuntime": "ERR_MODULE_NOT_FOUND: extensionless emailVerifier import"
+    },
+    "syntheticSecurityChecks": {
+      "mathRendererHTMLHandlerExecuted": true,
+      "expiredJWTWasAccepted": true,
+      "resetTokenWasAcceptedAsAccessToken": true,
+      "plaintextLoginPasswordPersistedToLocalStorage": true,
+      "realDatabaseMutated": false,
+      "externalAIOrSMTPRequestsMade": false
+    }
+  },
+  "limitations": [
+    "Not a Git history audit; no .git found",
+    "No fresh npm ci performed; isolated source copy reused installed dependency directory",
+    "No Docker build or Vercel deployment performed",
+    "No public-service exploitation or load test performed",
+    "Dependency audit severities do not establish exploit reachability",
+    "Question redistribution rights and authorship not established"
+  ]
+}
