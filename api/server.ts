@@ -94,14 +94,21 @@ app.use('/api/admin/settings', adminSettingsRouter);
 app.use('/api/account', accountRouter);
 
 // 用户上传的头像：文件名随机、内容已校验，可长期缓存。
-app.use('/uploads', express.static(UPLOADS_ROOT, {
-  index: false,
-  maxAge: '30d',
-  immutable: true,
-  setHeaders: (res) => {
-    res.setHeader('Cross-Origin-Resource-Policy', 'cross-origin');
+app.use(
+  '/uploads',
+  express.static(UPLOADS_ROOT, {
+    index: false,
+    maxAge: '30d',
+    immutable: true,
+    setHeaders: (res) => {
+      res.setHeader('Cross-Origin-Resource-Policy', 'cross-origin');
+    },
+  }),
+  // 文件不存在时直接 404，避免落到前端静态页返回 HTML。
+  (_req, res) => {
+    res.status(404).json({ success: false, error: '文件不存在。' });
   },
-}));
+);
 
 app.get('/api/health', (req, res) => {
   res.json({ status: 'ok', timestamp: new Date().toISOString() });
