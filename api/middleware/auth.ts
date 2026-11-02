@@ -44,6 +44,7 @@ export const authMiddleware = async (req: AuthRequest, res: Response, next: Next
         username: true,
         email: true,
         role: true,
+        avatar: true,
         needPasswordChange: true,
         tokenVersion: true,
         createdAt: true,

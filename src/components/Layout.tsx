@@ -12,7 +12,6 @@ import {
   BarChart3,
   Settings,
   LogOut,
-  User,
   Users,
   Menu,
   X,
@@ -24,6 +23,7 @@ import {
 } from 'lucide-react';
 import { cn } from '../lib/utils';
 import { PROJECT_LINKS } from '../config/projectLinks';
+import { UserAvatar } from './UserAvatar';
 
 interface LayoutProps {
   children: ReactNode;
@@ -213,9 +213,7 @@ export default function Layout({ children }: LayoutProps) {
           onClick={() => setIsUserMenuOpen(!isUserMenuOpen)}
           className="flex items-center space-x-3 p-2 rounded-lg hover:bg-secondary-100 dark:hover:bg-secondary-800 transition-colors"
         >
-          <div className="w-10 h-10 bg-gradient-to-br from-amber-500 to-amber-600 rounded-full flex items-center justify-center shadow-soft">
-            <User className="h-5 w-5 text-white" />
-          </div>
+          <UserAvatar avatar={user.avatar} username={user.username} size="md" />
           <div className="hidden md:block text-left">
             <p className="text-sm font-medium text-secondary-900 dark:text-secondary-100">{user.username}</p>
             <p className="text-xs text-secondary-500 dark:text-secondary-400">
@@ -239,24 +237,13 @@ export default function Layout({ children }: LayoutProps) {
               <div className="py-2">
                 <button
                   onClick={() => {
-                    navigate('/profile');
-                    setIsUserMenuOpen(false);
-                  }}
-                  className="w-full flex items-center px-3 py-2 text-sm text-secondary-700 dark:text-secondary-300 hover:bg-secondary-100 dark:hover:bg-secondary-700 rounded-md transition-colors"
-                >
-                  <User className="h-4 w-4 mr-3" />
-                  个人资料
-                </button>
-                
-                <button
-                  onClick={() => {
                     navigate('/settings');
                     setIsUserMenuOpen(false);
                   }}
                   className="w-full flex items-center px-3 py-2 text-sm text-secondary-700 dark:text-secondary-300 hover:bg-secondary-100 dark:hover:bg-secondary-700 rounded-md transition-colors"
                 >
                   <Settings className="h-4 w-4 mr-3" />
-                  账户设置
+                  个人设置
                 </button>
               </div>
               
@@ -441,6 +428,11 @@ export default function Layout({ children }: LayoutProps) {
           </button>
 
           <div className="flex items-center space-x-2">
+            {isAuthenticated && user && (
+              <Link to="/settings" aria-label="个人设置" className="rounded-full">
+                <UserAvatar avatar={user.avatar} username={user.username} size="sm" />
+              </Link>
+            )}
             <ThemeToggle />
           </div>
         </div>

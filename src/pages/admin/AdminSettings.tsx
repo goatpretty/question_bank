@@ -397,7 +397,7 @@ export default function AdminSettings() {
           </CardBody>
         </Card>
       ) : (
-        <>
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-5 items-start">
           <Card hover={false}>
             <CardHeader>
               <div className="flex flex-wrap items-start justify-between gap-3">
@@ -414,7 +414,7 @@ export default function AdminSettings() {
               </div>
             </CardHeader>
             <CardBody>
-              <form className="space-y-5" onSubmit={saveSmtp}>
+              <form className="space-y-4" onSubmit={saveSmtp}>
                 <Toggle
                   id="smtp-enabled"
                   checked={smtpForm.enabled}
@@ -423,7 +423,7 @@ export default function AdminSettings() {
                   description="关闭后，注册、登录验证码等依赖邮件的功能将不可用。"
                 />
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   <Input
                     label="服务器地址"
                     placeholder="smtp.example.com"
@@ -471,12 +471,12 @@ export default function AdminSettings() {
                   </div>
                 </div>
 
-                <div className="rounded-xl border border-secondary-200 dark:border-secondary-800 p-4 space-y-3">
+                <div className="rounded-xl border border-secondary-200 dark:border-secondary-800 p-3 space-y-2">
                   <p className="text-sm font-medium text-secondary-900 dark:text-secondary-100">发送测试邮件</p>
                   <p className="text-xs text-secondary-500 dark:text-secondary-400">
-                    使用已保存的配置发送，不会修改任何设置。留空则发送到当前管理员邮箱。
+                    使用已保存的配置发送，留空则发到当前管理员邮箱。
                   </p>
-                  <div className="flex flex-col sm:flex-row gap-3 sm:items-end">
+                  <div className="flex flex-col sm:flex-row gap-2 sm:items-end">
                     <Input
                       containerClassName="flex-1"
                       label="收件邮箱"
@@ -488,11 +488,12 @@ export default function AdminSettings() {
                     <Button
                       type="button"
                       variant="outline"
+                      size="sm"
                       loading={testingEmail}
                       icon={<Send className="h-4 w-4" />}
                       onClick={testEmail}
                     >
-                      发送测试邮件
+                      发送测试
                     </Button>
                   </div>
                 </div>
@@ -533,7 +534,7 @@ export default function AdminSettings() {
               </div>
             </CardHeader>
             <CardBody>
-              <form className="space-y-5" onSubmit={saveAi}>
+              <form className="space-y-4" onSubmit={saveAi}>
                 <Toggle
                   id="ai-enabled"
                   checked={aiForm.enabled}
@@ -542,7 +543,7 @@ export default function AdminSettings() {
                   description="关闭后，题目详情页的 AI 问答入口将不可用。"
                 />
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   <Input
                     label="Base URL"
                     placeholder="https://api.example.com/v1"
@@ -556,7 +557,7 @@ export default function AdminSettings() {
                     onChange={(event) => setAiForm((form) => ({ ...form, model: event.target.value }))}
                   />
                   <Input
-                    containerClassName="md:col-span-2"
+                    containerClassName="sm:col-span-2"
                     label="API Key"
                     type="password"
                     autoComplete="new-password"
@@ -595,7 +596,7 @@ export default function AdminSettings() {
               </form>
             </CardBody>
           </Card>
-        </>
+        </div>
       )}
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">

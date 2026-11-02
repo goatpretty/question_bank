@@ -20,6 +20,7 @@ model User {
   email              String   @unique
   password_hash      String   // snake_case 保持与现有代码兼容
   role               String   // 'student' | 'teacher' | 'admin'
+  avatar             String?  // 头像公开访问路径，例如 /uploads/avatars/xxx.png
   needPasswordChange Boolean  @default(false)
   tokenVersion       Int      @default(0)
   createdAt          DateTime @default(now())

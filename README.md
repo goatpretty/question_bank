@@ -11,6 +11,7 @@
 - 练习提交与结果回顾
 - 错题本与掌握状态
 - 考试作答与成绩查看
+- 个人设置：修改用户名 / 邮箱、直接修改密码（无需邮件）、上传并裁剪头像
 - KaTeX 数学公式展示
 
 ### 教师
@@ -88,8 +89,8 @@ NODE_ENV=production npm start
 - 使用 HTTPS
 - 设置 `FRONTEND_URL` 为实际访问地址
 - 如果反向代理传递 `X-Forwarded-For`，设置 `TRUST_PROXY=1`
-- 限制上传体积（默认单文件 10 MB，见 `api/routes/questions.ts`）
-- 定期备份 `var/question-bank.db`
+- 限制上传体积（题目导入默认单文件 10 MB，见 `api/routes/questions.ts`；头像单文件 2 MB）
+- 定期备份 `var/question-bank.db` 与上传目录 `var/uploads/`（头像等运行期文件）
 
 `deploy/` 目录提供 systemd 与 Nginx 示例，仅作参考，需按实际环境修改。
 
@@ -118,6 +119,7 @@ npm run build:all
 | `PORT` | 否 | 后端端口 | `3001` |
 | `FRONTEND_URL` | 生产建议 | 前端访问地址，用于 CORS | 空 |
 | `TRUST_PROXY` | 否 | 信任的反向代理层数 | `0` |
+| `UPLOAD_DIR` | 否 | 运行期上传目录（头像等），相对路径以项目根目录为基准 | `var/uploads` |
 | `SMTP_ENABLED` | 自助注册时必填 | 启用邮件验证码；关闭时只能由管理员创建账号 | `false` |
 | `SMTP_HOST` / `SMTP_PORT` / `SMTP_SECURE` | 否 | SMTP 连接配置 | — |
 | `SMTP_USER` / `SMTP_PASS` / `SMTP_FROM` | 否 | SMTP 账号与发件人 | — |

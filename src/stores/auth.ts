@@ -15,6 +15,7 @@ interface AuthState {
   clearError: () => void;
   checkAuth: () => Promise<void>;
   updateSession: (token: string, user: User) => void;
+  updateUser: (user: User) => void;
   forgotPassword: (email: string) => Promise<void>;
   resetPassword: (token: string, newPassword: string) => Promise<void>;
   sendVerificationCode: (email: string, type: 'register' | 'reset' | 'login' | 'password-change' | 'email-change') => Promise<void>;
@@ -128,6 +129,14 @@ export const useAuthStore = create<AuthState>()(
       updateSession: (token: string, user: User) => {
         set({
           token,
+          user,
+          isAuthenticated: true,
+          error: null,
+        });
+      },
+
+      updateUser: (user: User) => {
+        set({
           user,
           isAuthenticated: true,
           error: null,

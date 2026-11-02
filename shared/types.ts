@@ -3,6 +3,7 @@ export interface User {
   username: string;
   email: string;
   role: 'student' | 'teacher' | 'admin';
+  avatar?: string | null;
   createdAt: Date;
   updatedAt: Date;
   needPasswordChange: boolean;

@@ -116,7 +116,7 @@ describe('AdminSettings Page', () => {
   it('sends a test email and shows the result', async () => {
     await renderSettings()
 
-    fireEvent.click(screen.getByRole('button', { name: '发送测试邮件' }))
+    fireEvent.click(screen.getByRole('button', { name: '发送测试' }))
 
     await waitFor(() => expect(sendTestEmail).toHaveBeenCalledWith(undefined))
     expect(await screen.findByText('测试邮件已发送，请检查收件箱。')).toBeInTheDocument()

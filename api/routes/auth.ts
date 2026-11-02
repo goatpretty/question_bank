@@ -6,6 +6,7 @@ import { authMiddleware, requireRole, AuthRequest } from '../middleware/auth.js'
 import { AuthResponse } from '../../shared/types.js';
 import { sendVerificationCode, verifyVerificationCode, validateVerificationCode, consumeVerificationCode, VerificationCodeType } from '../utils/emailVerifier.js';
 import { signAccessToken, verifyAccessToken } from '../utils/jwt.js';
+import { validatePassword } from '../utils/password.js';
 
 const router = express.Router();
 
@@ -13,16 +14,6 @@ const RESET_TOKEN_TTL_MS = 15 * 60 * 1000;
 
 function hashToken(token: string): string {
   return createHash('sha256').update(token).digest('hex');
-}
-
-function validatePassword(password: unknown): string | null {
-  if (typeof password !== 'string' || password.length < 8) {
-    return '密码长度至少为8位。';
-  }
-  if (!/[A-Za-z]/.test(password) || !/\d/.test(password)) {
-    return '密码必须同时包含至少一个英文字母和一个数字。';
-  }
-  return null;
 }
 
 function generateTemporaryPassword(): string {
@@ -278,6 +269,7 @@ router.post('/verify-registration', async (req, res) => {
         username: newUser.username,
         email: newUser.email,
         role: newUser.role as 'student' | 'teacher' | 'admin',
+        avatar: newUser.avatar,
         createdAt: newUser.createdAt,
         updatedAt: newUser.updatedAt,
         needPasswordChange: newUser.needPasswordChange
@@ -388,6 +380,7 @@ router.post('/login', async (req, res) => {
         username: user.username,
         email: user.email,
         role: user.role as 'student' | 'teacher' | 'admin',
+        avatar: user.avatar,
         createdAt: user.createdAt,
         updatedAt: user.updatedAt,
         needPasswordChange: user.needPasswordChange

@@ -12,10 +12,12 @@ import { userRouter } from './routes/users.js';
 import { aiRouter } from './routes/ai.js';
 import { metaRouter } from './routes/meta.js';
 import { adminSettingsRouter } from './routes/adminSettings.js';
+import { accountRouter } from './routes/account.js';
 import { errorHandler } from './middleware/errorHandler.js';
 import { prisma } from './db/prisma.js';
 import { config } from './config.js';
 import { loadSystemSettings } from './services/systemSettings.js';
+import { UPLOADS_ROOT } from './utils/uploads.js';
 
 const app = express();
 const PORT = config.port;
@@ -74,7 +76,7 @@ if (process.env.NODE_ENV === 'production') {
 // 将写操作限流应用到主要资源路由
 app.use((req, res, next) => {
   const isWrite = req.method === 'POST' || req.method === 'PUT' || req.method === 'DELETE';
-  const isTarget = req.path.startsWith('/api/questions') || req.path.startsWith('/api/exams') || req.path.startsWith('/api/users') || req.path.startsWith('/api/admin/settings');
+  const isTarget = req.path.startsWith('/api/questions') || req.path.startsWith('/api/exams') || req.path.startsWith('/api/users') || req.path.startsWith('/api/admin/settings') || req.path.startsWith('/api/account');
   if (isWrite && isTarget) {
     return writeLimiter(req, res, next);
   }
@@ -89,6 +91,17 @@ app.use('/api/users', userRouter);
 app.use('/api/ai', aiRouter);
 app.use('/api/meta', metaRouter);
 app.use('/api/admin/settings', adminSettingsRouter);
+app.use('/api/account', accountRouter);
+
+// 用户上传的头像：文件名随机、内容已校验，可长期缓存。
+app.use('/uploads', express.static(UPLOADS_ROOT, {
+  index: false,
+  maxAge: '30d',
+  immutable: true,
+  setHeaders: (res) => {
+    res.setHeader('Cross-Origin-Resource-Policy', 'cross-origin');
+  },
+}));
 
 app.get('/api/health', (req, res) => {
   res.json({ status: 'ok', timestamp: new Date().toISOString() });
