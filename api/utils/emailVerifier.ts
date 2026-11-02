@@ -1,6 +1,6 @@
 import { createHash, randomInt, timingSafeEqual } from 'node:crypto';
 import nodemailer, { type Transporter } from 'nodemailer';
-import { config } from '../config.js';
+import { getSmtpSettings } from '../services/systemSettings.js';
 
 // 验证码类型
 export type VerificationCodeType = 'register' | 'reset' | 'login' | 'password-change' | 'email-change';
@@ -17,8 +17,9 @@ interface VerificationCode {
 
 const verificationCodes: VerificationCode[] = [];
 
-// 邮件传输器（延迟创建，确保 dotenv 已加载）
+// 邮件传输器（延迟创建；配置变化时按指纹重建）
 let transporter: Transporter | null = null;
+let transporterKey = '';
 
 const MAX_ATTEMPTS = 5;
 const COOLDOWN_MS = 5 * 60 * 1000;
@@ -42,35 +43,41 @@ function hashesMatch(expectedHash: string, actualHash: string): boolean {
 export function readSmtpSettings():
   | { ok: true; host: string; port: number; secure: boolean; user: string; pass: string; from: string }
   | { ok: false; message: string } {
-  if (!config.smtpEnabled) {
+  const settings = getSmtpSettings();
+
+  if (!settings.enabled) {
     return {
       ok: false,
       message: '邮件服务未启用，请联系管理员配置 SMTP 后再使用验证码功能。',
     };
   }
 
-  const host = (process.env.SMTP_HOST || '').trim();
-  const user = (process.env.SMTP_USER || '').trim();
-  const pass = process.env.SMTP_PASS || '';
-  const from = (process.env.SMTP_FROM || user).trim();
-  const port = Number.parseInt(process.env.SMTP_PORT || '465', 10);
-
-  if (!host || !user || !pass || !from || !Number.isInteger(port) || port <= 0) {
+  if (
+    !settings.host ||
+    !settings.user ||
+    !settings.pass ||
+    !settings.from ||
+    !Number.isInteger(settings.port) ||
+    settings.port <= 0
+  ) {
     return {
       ok: false,
       message: '邮件服务配置不完整，请联系管理员检查 SMTP 配置。',
     };
   }
 
-  const secureEnv = process.env.SMTP_SECURE;
-  const secure = secureEnv === undefined
-    ? port === 465
-    : secureEnv === 'true' || secureEnv === '1';
-
-  return { ok: true, host, port, secure, user, pass, from };
+  return {
+    ok: true,
+    host: settings.host,
+    port: settings.port,
+    secure: settings.secure,
+    user: settings.user,
+    pass: settings.pass,
+    from: settings.from,
+  };
 }
 
-// 初始化邮件传输器
+// 初始化邮件传输器；配置变更后按指纹重建连接。
 const getTransporter = (smtp: {
   host: string;
   port: number;
@@ -78,16 +85,40 @@ const getTransporter = (smtp: {
   user: string;
   pass: string;
 }): Transporter => {
-  if (!transporter) {
+  const key = [smtp.host, smtp.port, smtp.secure, smtp.user, smtp.pass].join('\u0000');
+  if (!transporter || transporterKey !== key) {
     transporter = nodemailer.createTransport({
       host: smtp.host,
       port: smtp.port,
       secure: smtp.secure,
       auth: { user: smtp.user, pass: smtp.pass },
     });
+    transporterKey = key;
   }
   return transporter;
 };
+
+/** 使用当前 SMTP 配置发送一封测试邮件，不写入验证码状态。 */
+export async function sendTestEmail(to: string): Promise<{ success: boolean; message: string }> {
+  const smtp = readSmtpSettings();
+  if (smtp.ok === false) {
+    return { success: false, message: smtp.message };
+  }
+
+  try {
+    await getTransporter(smtp).sendMail({
+      from: smtp.from,
+      to,
+      subject: '思政复习题库系统 - SMTP 配置测试',
+      text: '这是一封来自思政复习题库系统的测试邮件。\n\n如果你收到此邮件，说明 SMTP 配置可以正常发送邮件。',
+    });
+    return { success: true, message: '测试邮件已发送，请检查收件箱。' };
+  } catch (error) {
+    const message = error instanceof Error ? error.message : 'unknown error';
+    console.error('发送测试邮件失败:', message);
+    return { success: false, message: '测试邮件发送失败，请检查 SMTP 配置。' };
+  }
+}
 
 // 生成 6 位安全随机验证码
 const generateVerificationCode = (): string => {

@@ -63,6 +63,20 @@ model VerificationCode {
 }
 
 // ============================================
+// 系统设置
+// ============================================
+
+// 管理员可在运行时修改的 SMTP / AI 配置。
+// 敏感值（SMTP 密码、AI API Key）在写入前使用 JWT_SECRET 派生密钥加密。
+model SystemSetting {
+  key       String   @id
+  value     String
+  updatedAt DateTime @updatedAt
+
+  @@map("system_settings")
+}
+
+// ============================================
 // 科目 / 章节 / 题目
 // ============================================
 

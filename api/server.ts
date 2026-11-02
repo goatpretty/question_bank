@@ -11,9 +11,11 @@ import { examRouter } from './routes/exams.js';
 import { userRouter } from './routes/users.js';
 import { aiRouter } from './routes/ai.js';
 import { metaRouter } from './routes/meta.js';
+import { adminSettingsRouter } from './routes/adminSettings.js';
 import { errorHandler } from './middleware/errorHandler.js';
 import { prisma } from './db/prisma.js';
 import { config } from './config.js';
+import { loadSystemSettings } from './services/systemSettings.js';
 
 const app = express();
 const PORT = config.port;
@@ -72,7 +74,7 @@ if (process.env.NODE_ENV === 'production') {
 // 将写操作限流应用到主要资源路由
 app.use((req, res, next) => {
   const isWrite = req.method === 'POST' || req.method === 'PUT' || req.method === 'DELETE';
-  const isTarget = req.path.startsWith('/api/questions') || req.path.startsWith('/api/exams') || req.path.startsWith('/api/users');
+  const isTarget = req.path.startsWith('/api/questions') || req.path.startsWith('/api/exams') || req.path.startsWith('/api/users') || req.path.startsWith('/api/admin/settings');
   if (isWrite && isTarget) {
     return writeLimiter(req, res, next);
   }
@@ -86,6 +88,7 @@ app.use('/api/exams', examRouter);
 app.use('/api/users', userRouter);
 app.use('/api/ai', aiRouter);
 app.use('/api/meta', metaRouter);
+app.use('/api/admin/settings', adminSettingsRouter);
 
 app.get('/api/health', (req, res) => {
   res.json({ status: 'ok', timestamp: new Date().toISOString() });
@@ -105,17 +108,29 @@ if (config.isProduction) {
 
 app.use(errorHandler);
 
-app.listen(PORT, async () => {
-  console.log(`Server running on port ${PORT}`);
-  console.log(`Environment: ${process.env.NODE_ENV || 'development'}`);
-
+async function start(): Promise<void> {
   try {
     await prisma.$connect();
     console.log('Prisma connected to SQLite database');
   } catch (error) {
     console.error('Failed to connect to database:', error);
   }
-});
+
+  // 先加载管理员在数据库中保存的 SMTP / AI 配置，再对外提供服务。
+  try {
+    await loadSystemSettings();
+    console.log('System settings loaded');
+  } catch (error) {
+    console.error('Failed to load system settings:', error);
+  }
+
+  app.listen(PORT, () => {
+    console.log(`Server running on port ${PORT}`);
+    console.log(`Environment: ${process.env.NODE_ENV || 'development'}`);
+  });
+}
+
+void start();
 
 process.on('SIGINT', async () => {
   await prisma.$disconnect();

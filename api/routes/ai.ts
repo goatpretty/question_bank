@@ -1,5 +1,6 @@
 import { Router } from 'express';
 import { authMiddleware, AuthRequest } from '../middleware/auth.js';
+import { getAiSettings } from '../services/systemSettings.js';
 
 const router = Router();
 
@@ -62,14 +63,20 @@ function buildSystemPrompt(question?: QuestionContext | null) {
 }
 
 router.post('/chat', authMiddleware, async (req: AuthRequest, res) => {
-  const apiKey = process.env.AI_API_KEY;
-  const baseUrl = process.env.AI_BASE_URL || 'https://token-plan-cn.xiaomimimo.com/v1';
-  const model = process.env.AI_MODEL || 'mimo-v2.6-flash';
+  const settings = getAiSettings();
+  const { apiKey, baseUrl, model } = settings;
+
+  if (!settings.enabled) {
+    return res.status(503).json({
+      success: false,
+      error: 'AI 功能未启用，请联系管理员在系统设置中开启。',
+    });
+  }
 
   if (!apiKey) {
-    return res.status(500).json({
+    return res.status(503).json({
       success: false,
-      error: 'AI 服务未配置：缺少 AI_API_KEY',
+      error: 'AI 服务未配置：缺少 API Key',
     });
   }
 
