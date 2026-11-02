@@ -162,7 +162,7 @@ src/                前端 React 应用
 shared/             前后端共享类型
 data/               公开题库数据集与数据许可证
 deploy/             systemd / Nginx 示例
-docs/               审计、发布计划与来源台账
+docs/               题库来源台账与署名信息
 scripts/            导出、构建辅助脚本
 var/                本地数据库与运行数据（不提交）
 ```

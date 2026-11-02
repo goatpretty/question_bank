@@ -32,6 +32,12 @@ data/private/
 docs/round4-evidence/
 docs/rights/private/
 docs/毛概-新增/
+# 内部审计、发布计划与验收文档，仅保留在本地
+docs/open-source-audit-*.md
+docs/open-source-audit-*/
+docs/open-source-release-plan-*.md
+docs/release-readiness-*.md
+docs/dependency-status.md
 
 # ============================================
 # 构建与生成
