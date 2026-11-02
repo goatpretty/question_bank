@@ -40,4 +40,4 @@
 - 注册强制邮箱验证；SMTP 未配置时明确拒绝；验证码只存哈希并限制错误次数
 - 管理员创建/重置用户使用一次性随机临时密码，首次登录强制改密
 - 清理认证、考试、题库与 token 相关调试日志
-- 替换 `xlsx` 为 ExcelJS，升级 `nodemailer`、`multer`、`react-router-dom`、`vite`；生产依赖无 high/critical 告警
+- 替换 `xlsx` 为 ExcelJS，升级 `nodemailer`、`multer`、`react-router-dom`、`vite`、`katex`；生产依赖无 high/critical 告警
