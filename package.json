@@ -52,7 +52,7 @@
     "express-rate-limit": "^7.0.0",
     "helmet": "^7.0.0",
     "jsonwebtoken": "^9.0.0",
-    "katex": "^0.16.0",
+    "katex": "^0.18.2",
     "lucide-react": "^0.511.0",
     "mathjax": "^3.2.0",
     "multer": "^2.0.2",
