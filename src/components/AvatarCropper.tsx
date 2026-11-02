@@ -49,8 +49,26 @@ export function AvatarCropper({ file, busy = false, error = '', onCancel, onConf
 
   useEffect(() => {
     let cancelled = false;
-    const url = URL.createObjectURL(file);
+    let reader: FileReader | null = null;
+    const objectUrl = URL.createObjectURL(file);
     const img = new Image();
+
+    const fail = () => {
+      if (!cancelled) setLoadError('无法读取图片，请换一张再试。');
+    };
+
+    // 某些部署的 CSP 会拦截 blob:，此时改用 data: 再读取一次。
+    const loadAsDataUrl = () => {
+      if (cancelled) return;
+      reader = new FileReader();
+      reader.onload = () => {
+        const result = reader?.result;
+        if (cancelled || typeof result !== 'string') return;
+        img.src = result;
+      };
+      reader.onerror = fail;
+      reader.readAsDataURL(file);
+    };
 
     img.onload = () => {
       if (cancelled) return;
@@ -60,13 +78,19 @@ export function AvatarCropper({ file, busy = false, error = '', onCancel, onConf
       setLoadError('');
     };
     img.onerror = () => {
-      if (!cancelled) setLoadError('无法读取图片，请换一张再试。');
+      if (cancelled) return;
+      if (img.src.startsWith('blob:')) {
+        loadAsDataUrl();
+      } else {
+        fail();
+      }
     };
-    img.src = url;
+    img.src = objectUrl;
 
     return () => {
       cancelled = true;
-      URL.revokeObjectURL(url);
+      URL.revokeObjectURL(objectUrl);
+      reader?.abort();
     };
   }, [file]);
 
