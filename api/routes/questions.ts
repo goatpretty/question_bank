@@ -143,9 +143,11 @@ router.get('/topics', async (req, res) => {
 // ──────────────── GET /stats ────────────────
 router.get('/stats', async (req, res) => {
   try {
-    const dbTopics = await prisma.topic.findMany({
-      orderBy: { createdAt: 'asc' },
-    });
+    const [dbTopics, totalQuestions, totalOptions] = await Promise.all([
+      prisma.topic.findMany({ orderBy: { createdAt: 'asc' } }),
+      prisma.question.count(),
+      prisma.questionOption.count(),
+    ]);
     const courses = dbTopics.filter((t: any) => !t.parentId);
     const chapters = dbTopics.filter((t: any) => !!t.parentId);
 
@@ -168,7 +170,20 @@ router.get('/stats', async (req, res) => {
       };
     });
 
-    res.json({ success: true, data: { courses: coursesWithChapters, chapters: chapterCounts } });
+    res.json({
+      success: true,
+      data: {
+        totals: {
+          topics: dbTopics.length,
+          courses: courses.length,
+          chapters: chapters.length,
+          questions: totalQuestions,
+          options: totalOptions,
+        },
+        courses: coursesWithChapters,
+        chapters: chapterCounts
+      }
+    });
   } catch (error) {
     console.error('Get stats error:', error);
     res.status(500).json({ success: false, error: 'Failed to fetch stats.' });

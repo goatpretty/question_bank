@@ -20,6 +20,19 @@ interface QuestionsByFilterResponse {
   data: Question[];
 }
 
+export interface PublicTotals {
+  topics: number;
+  courses: number;
+  chapters: number;
+  questions: number;
+  options: number;
+}
+
+interface PublicStatsResponse {
+  success: boolean;
+  data: { totals: PublicTotals };
+}
+
 class QuestionService extends BaseService {
   constructor() {
     super('questions');
@@ -75,6 +88,11 @@ class QuestionService extends BaseService {
 
   async getTopics(): Promise<{ success: boolean; data: Topic[] }> {
     return this.get<{ success: boolean; data: Topic[] }>(`${this.apiBase}/topics`);
+  }
+
+  /** 公开的题库统计，供首页展示真实数据。 */
+  async getPublicStats(): Promise<PublicStatsResponse> {
+    return this.get<PublicStatsResponse>(`${this.apiBase}/stats`);
   }
 
   async createTopic(data: { name: string; parentId?: string }): Promise<{ success: boolean; data: Topic }> {

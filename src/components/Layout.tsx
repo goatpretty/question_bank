@@ -20,10 +20,10 @@ import {
   Moon,
   Monitor,
   ChevronDown,
-  Bell,
-  Search
+  Github
 } from 'lucide-react';
 import { cn } from '../lib/utils';
+import { PROJECT_LINKS } from '../config/projectLinks';
 
 interface LayoutProps {
   children: ReactNode;
@@ -44,8 +44,6 @@ export default function Layout({ children }: LayoutProps) {
   const { theme, resolvedTheme, isDark, setSystemTheme, setTheme, setLightTheme, setDarkTheme, systemTheme } = useTheme();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
-  const [isSearchOpen, setIsSearchOpen] = useState(false);
-  const [searchQuery, setSearchQuery] = useState('');
 
   const handleLogout = () => {
     logout();
@@ -59,10 +57,10 @@ export default function Layout({ children }: LayoutProps) {
 
   const mainNavigation: NavigationItem[] = [
     { name: '首页', href: '/', icon: Home, description: '系统概览与快速入口' },
-    { name: '练习中心', href: '/practice', icon: PenTool, description: '智能推荐个性化练习' },
-    { name: '考试中心', href: '/exam', icon: FileText, description: '模拟考试与真实测评' },
-    { name: '错题本', href: '/wrongbook', icon: Target, description: '针对性巩固薄弱环节' },
-    { name: '学习记录', href: '/record', icon: BarChart3, description: '详细学习数据分析' },
+    { name: '练习中心', href: '/practice', icon: PenTool, description: '按专题与章节练习' },
+    { name: '考试中心', href: '/exam', icon: FileText, description: '限时考试与自动评分' },
+    { name: '错题本', href: '/wrongbook', icon: Target, description: '复习练习与考试中的错题' },
+    { name: '学习记录', href: '/record', icon: BarChart3, description: '练习与考试历史记录' },
   ];
 
   const teacherNavigation: NavigationItem[] = [
@@ -72,7 +70,7 @@ export default function Layout({ children }: LayoutProps) {
 
   const adminNavigation: NavigationItem[] = [
     { name: '用户管理', href: '/admin/users', icon: Users, description: '查看用户与重置密码' },
-    { name: '系统设置', href: '/admin/settings', icon: Settings, description: '系统配置与管理' },
+    { name: '系统设置', href: '/admin/settings', icon: Settings, description: '部署与项目信息' },
   ];
 
   // Close mobile menu when route changes
@@ -350,7 +348,7 @@ export default function Layout({ children }: LayoutProps) {
               <h1 className="text-xl font-bold text-amber-600 dark:text-amber-400">
                 思政复习题库
               </h1>
-              <p className="text-xs text-secondary-500 dark:text-secondary-400">Intelligent Question Bank</p>
+              <p className="text-xs text-secondary-500 dark:text-secondary-400">Open-source Question Bank</p>
             </div>
           </Link>
           
@@ -407,7 +405,19 @@ export default function Layout({ children }: LayoutProps) {
         {/* Footer */}
         <div className="p-4 border-t border-secondary-200 dark:border-secondary-800">
           <div className="flex items-center justify-between">
-            <ThemeToggle />
+            <div className="flex items-center gap-1">
+              <ThemeToggle />
+              <a
+                href={PROJECT_LINKS.repository}
+                target="_blank"
+                rel="noreferrer"
+                aria-label="GitHub 仓库"
+                title="GitHub 仓库"
+                className="p-2 rounded-lg text-secondary-500 dark:text-secondary-400 hover:bg-secondary-100 dark:hover:bg-secondary-800 hover:text-secondary-900 dark:hover:text-secondary-200 transition-colors"
+              >
+                <Github className="h-5 w-5" />
+              </a>
+            </div>
             {!isMobile && <UserMenu />}
           </div>
         </div>
@@ -474,36 +484,17 @@ export default function Layout({ children }: LayoutProps) {
               </div>
               
               <div className="flex items-center space-x-4">
-                <IconButton
-                  icon={<Search className="h-5 w-5" />}
-                  variant="ghost"
-                  onClick={() => setIsSearchOpen(!isSearchOpen)}
-                  tooltip="搜索"
-                />
-                <IconButton
-                  icon={<Bell className="h-5 w-5" />}
-                  variant="ghost"
-                  tooltip="通知"
-                />
+                <a
+                  href={PROJECT_LINKS.repository}
+                  target="_blank"
+                  rel="noreferrer"
+                  aria-label="GitHub 仓库"
+                  title="GitHub 仓库"
+                  className="p-2 rounded-lg text-secondary-500 dark:text-secondary-400 hover:bg-secondary-100 dark:hover:bg-secondary-800 hover:text-secondary-900 dark:hover:text-secondary-200 transition-colors"
+                >
+                  <Github className="h-5 w-5" />
+                </a>
                 <UserMenu />
-              </div>
-            </div>
-          )}
-
-          {/* Search Bar */}
-          {isSearchOpen && (
-            <div className="hidden lg:block p-4 bg-white dark:bg-secondary-900 border-b border-secondary-200 dark:border-secondary-800">
-              <div className="max-w-2xl mx-auto">
-                <div className="relative">
-                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-secondary-400" />
-                  <input
-                    type="text"
-                    placeholder="搜索题目、考试或学习记录..."
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                    className="form-input pl-10 pr-4"
-                  />
-                </div>
               </div>
             </div>
           )}

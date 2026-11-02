@@ -10,6 +10,7 @@ import { practiceRouter } from './routes/practice.js';
 import { examRouter } from './routes/exams.js';
 import { userRouter } from './routes/users.js';
 import { aiRouter } from './routes/ai.js';
+import { metaRouter } from './routes/meta.js';
 import { errorHandler } from './middleware/errorHandler.js';
 import { prisma } from './db/prisma.js';
 import { config } from './config.js';
@@ -84,6 +85,7 @@ app.use('/api/practice', practiceRouter);
 app.use('/api/exams', examRouter);
 app.use('/api/users', userRouter);
 app.use('/api/ai', aiRouter);
+app.use('/api/meta', metaRouter);
 
 app.get('/api/health', (req, res) => {
   res.json({ status: 'ok', timestamp: new Date().toISOString() });

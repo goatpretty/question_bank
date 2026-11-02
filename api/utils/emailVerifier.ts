@@ -39,7 +39,7 @@ function hashesMatch(expectedHash: string, actualHash: string): boolean {
   return expected.length === actual.length && timingSafeEqual(expected, actual);
 }
 
-function readSmtpSettings():
+export function readSmtpSettings():
   | { ok: true; host: string; port: number; secure: boolean; user: string; pass: string; from: string }
   | { ok: false; message: string } {
   if (!config.smtpEnabled) {
