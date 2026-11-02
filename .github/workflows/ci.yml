@@ -1,0 +1,78 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+
+    env:
+      DATABASE_URL: file:./var/ci.db
+      JWT_SECRET: test-only-secret-for-ci-000000000000000000
+      SEED_DEMO: "true"
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Use Node.js 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Generate Prisma client
+        run: npm run db:generate
+
+      - name: Type check client
+        run: npm run typecheck:client
+
+      - name: Type check server
+        run: npm run typecheck:server
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Test
+        run: npm test
+
+      - name: Build frontend and server
+        run: npm run build:all
+
+      - name: Initialize database
+        run: |
+          npm run db:migrate
+          npm run db:seed
+
+      - name: Smoke test built server
+        env:
+          NODE_ENV: production
+          PORT: 3101
+        run: |
+          node dist/api/server.js &
+          SERVER_PID=$!
+          for i in $(seq 1 30); do
+            if curl -fsS http://127.0.0.1:3101/api/health; then
+              break
+            fi
+            sleep 1
+          done
+          curl -fsS http://127.0.0.1:3101/api/health
+          curl -fsS -o /dev/null -w "%{http_code}\n" http://127.0.0.1:3101/api/questions/topics
+          curl -fsS -o /dev/null -w "%{http_code}\n" http://127.0.0.1:3101/
+          kill $SERVER_PID

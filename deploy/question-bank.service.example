@@ -1,0 +1,26 @@
+# systemd 示例：复制到 /etc/systemd/system/question-bank.service 后按实际路径修改。
+# 前置条件：
+#   1. 已执行 npm ci && npm run build:all
+#   2. /opt/question-bank/.env 已配置 JWT_SECRET、DATABASE_URL、NODE_ENV=production
+#   3. 运行用户对 var/ 目录有写权限
+
+[Unit]
+Description=Question Bank
+After=network.target
+
+[Service]
+Type=simple
+User=questionbank
+Group=questionbank
+WorkingDirectory=/opt/question-bank
+EnvironmentFile=/opt/question-bank/.env
+ExecStart=/usr/bin/npm start
+Restart=on-failure
+RestartSec=5
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=full
+ReadWritePaths=/opt/question-bank/var
+
+[Install]
+WantedBy=multi-user.target

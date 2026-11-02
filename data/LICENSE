@@ -1,0 +1,19 @@
+Question Bank 题库数据集
+Copyright (c) 2026 goatpretty
+
+本数据集采用 Creative Commons Attribution 4.0 International（CC BY 4.0）许可。
+
+你可以自由地共享（以任何媒介或格式复制和再分发）和改编（ remix、转换和基于本数据集创作），
+包括商业用途，但必须遵守以下条件：
+
+- 署名：必须给出适当的署名，提供指向本许可的链接，并说明是否作了修改。
+  你可以以任何合理的方式署名，但不得暗示许可方为你或你的使用背书。
+
+许可全文：https://creativecommons.org/licenses/by/4.0/legalcode
+许可摘要：https://creativecommons.org/licenses/by/4.0/
+
+说明：
+- 本许可仅适用于 `data/` 目录中的题库数据。
+- 项目源代码采用 MIT 许可，见仓库根目录 `LICENSE`。
+- 数据集不包含用户账号、考试提交、练习作答、错题记录等运行数据。
+- 第三方内容如适用不同许可，以 `data/ATTRIBUTION.md` 与 `docs/data-provenance.csv` 中的逐项说明为准。
