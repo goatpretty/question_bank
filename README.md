@@ -42,24 +42,26 @@ git clone https://github.com/goatpretty/question_bank.git
 cd question_bank
 npm ci
 
-cp .env.example .env
-# 编辑 .env，至少设置 JWT_SECRET：
-#   openssl rand -base64 48
+# 生成 .env，并自动写入随机 JWT_SECRET
+npm run env:init
 
-npm run db:generate
-npm run db:migrate
-npm run db:seed
+# 编辑 .env，填写管理员账号：
+#   ADMIN_EMAIL=admin@example.com
+#   ADMIN_INITIAL_PASSWORD='至少8位且包含字母和数字'
+# 然后初始化数据库并导入题库
+npm run setup
 ```
 
-`db:seed` 会导入 `data/dataset-v1.json` 中的公开题库。自助注册依赖邮件验证码，因此需要同时配置 `SMTP_ENABLED=true` 与 SMTP 账号；未配置 SMTP 时请由管理员创建账号。创建管理员有两种方式：
+`npm run setup` 会校验 `.env`、生成 Prisma Client、应用迁移并导入 `data/dataset-v1.json`。首次运行必须提供管理员账号，或在本地开发时使用演示账号：
 
 ```bash
-# 方式一：指定管理员邮箱和初始密码（首次登录必须改密）
-ADMIN_EMAIL=admin@example.com ADMIN_INITIAL_PASSWORD='change-me-please' npm run db:seed
-
-# 方式二：本地演示账号（仅开发环境使用，密码只打印一次）
-SEED_DEMO=true npm run db:seed
+# 仅开发环境：创建 admin / teacher / student 演示账号，密码只打印一次
+SEED_DEMO=true npm run setup
 ```
+
+自助注册依赖邮件验证码，因此需要同时配置 `SMTP_ENABLED=true` 与 SMTP 账号；未配置 SMTP 时请由管理员创建账号。
+
+> `.env` 已被 `.gitignore` 排除，只保存在本机；请勿把真实凭据写入 `.env.example` 或提交到仓库。
 
 启动开发环境（两个终端）：
 

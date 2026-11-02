@@ -13,6 +13,8 @@
 - `CONTRIBUTING.md`、`SECURITY.md`、`THIRD_PARTY_NOTICES.md`
 - 自托管 systemd / Nginx 示例
 - 生产模式由 Express 同源托管前端静态文件
+- `npm run env:init` 首次生成 `.env` 并写入随机 `JWT_SECRET`
+- `npm run setup` 在初始化前校验管理员账号或演示账号配置
 
 ### Changed
 

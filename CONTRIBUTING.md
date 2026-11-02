@@ -8,11 +8,10 @@
 
 ```bash
 npm ci
-cp .env.example .env
-# 设置 JWT_SECRET
-npm run db:generate
-npm run db:migrate
-SEED_DEMO=true npm run db:seed
+npm run env:init
+# 生成 .env 与随机 JWT_SECRET；编辑 .env 填写管理员账号
+npm run setup
+# 或使用演示账号：SEED_DEMO=true npm run setup
 ```
 
 4. 启动前后端：

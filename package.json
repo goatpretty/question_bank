@@ -33,7 +33,10 @@
     "db:seed": "tsx prisma/seed.ts",
     "db:reset": "prisma migrate reset --force",
     "db:export": "tsx scripts/export-public-dataset.ts",
-    "setup": "npm run db:generate && npm run db:migrate && npm run db:seed"
+    "setup": "node scripts/ensure-env.mjs --require-admin && npm run db:generate && npm run db:migrate && npm run db:seed",
+    "env:init": "node scripts/ensure-env.mjs",
+    "predev": "node scripts/ensure-env.mjs",
+    "predev:server": "node scripts/ensure-env.mjs"
   },
   "dependencies": {
     "@prisma/adapter-better-sqlite3": "^7.8.0",
