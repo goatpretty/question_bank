@@ -53,10 +53,6 @@ function toPublicUser<T extends { password_hash: string }>(user: T): Omit<T, 'pa
   return rest;
 }
 
-function readString(value: unknown): string {
-  return typeof value === 'string' ? value.trim() : '';
-}
-
 async function removeStoredAvatar(publicPath: string | null | undefined): Promise<void> {
   const filePath = avatarFilePathFromUrl(publicPath);
   if (!filePath) return;
@@ -66,59 +62,6 @@ async function removeStoredAvatar(publicPath: string | null | undefined): Promis
 }
 
 accountRouter.use(authMiddleware);
-
-// 修改用户名或邮箱（无需邮件验证码，要求已登录）
-accountRouter.put('/profile', async (req: AuthRequest, res) => {
-  const userId = req.user?.id;
-  if (!userId) {
-    return res.status(401).json({ success: false, error: '请先登录。' });
-  }
-
-  const username = readString(req.body?.username);
-  const email = readString(req.body?.email);
-
-  if (!username || !email) {
-    return res.status(400).json({ success: false, error: '用户名和邮箱为必填项。' });
-  }
-  if (!/^[a-zA-Z0-9]{1,30}$/.test(username)) {
-    return res.status(400).json({ success: false, error: '用户名只能包含英文字母和数字，且不超过 30 个字符。' });
-  }
-  if (email.length > 254 || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-    return res.status(400).json({ success: false, error: '邮箱格式不正确。' });
-  }
-
-  try {
-    if (username !== req.user?.username) {
-      const owner = await prisma.user.findUnique({ where: { username } });
-      if (owner && owner.id !== userId) {
-        return res.status(409).json({ success: false, error: '用户名已被使用。' });
-      }
-    }
-    if (email !== req.user?.email) {
-      const owner = await prisma.user.findUnique({ where: { email } });
-      if (owner && owner.id !== userId) {
-        return res.status(409).json({ success: false, error: '邮箱已被使用。' });
-      }
-    }
-
-    const updated = await prisma.user.update({
-      where: { id: userId },
-      data: { username, email, updatedAt: new Date() },
-    });
-
-    res.json({
-      success: true,
-      user: toPublicUser(updated),
-      message: '账号信息已更新。',
-    });
-  } catch (error: unknown) {
-    console.error('更新账号信息失败:', error instanceof Error ? error.message : error);
-    if (typeof error === 'object' && error !== null && 'code' in error && error.code === 'P2002') {
-      return res.status(409).json({ success: false, error: '用户名或邮箱已被使用。' });
-    }
-    res.status(500).json({ success: false, error: '更新账号信息失败，请稍后重试。' });
-  }
-});
 
 // 凭当前密码直接修改密码，不依赖邮箱验证码
 accountRouter.post('/password', async (req: AuthRequest, res) => {

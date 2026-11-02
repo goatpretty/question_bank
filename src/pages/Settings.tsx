@@ -64,11 +64,6 @@ export default function Settings() {
   const [stats, setStats] = useState<ProfileStats | null>(null)
   const [statsLoading, setStatsLoading] = useState(true)
 
-  const [username, setUsername] = useState(user?.username ?? '')
-  const [email, setEmail] = useState(user?.email ?? '')
-  const [profileSaving, setProfileSaving] = useState(false)
-  const [profileFeedback, setProfileFeedback] = useState<Feedback | null>(null)
-
   const [currentPassword, setCurrentPassword] = useState('')
   const [newPassword, setNewPassword] = useState('')
   const [confirmPassword, setConfirmPassword] = useState('')
@@ -78,11 +73,6 @@ export default function Settings() {
   const [cropFile, setCropFile] = useState<File | null>(null)
   const [avatarBusy, setAvatarBusy] = useState(false)
   const [avatarFeedback, setAvatarFeedback] = useState<Feedback | null>(null)
-
-  useEffect(() => {
-    setUsername(user?.username ?? '')
-    setEmail(user?.email ?? '')
-  }, [user?.username, user?.email])
 
   useEffect(() => {
     let active = true
@@ -105,37 +95,6 @@ export default function Settings() {
       active = false
     }
   }, [token])
-
-  const saveProfile = async (event: React.FormEvent) => {
-    event.preventDefault()
-    setProfileFeedback(null)
-
-    const nextUsername = username.trim()
-    const nextEmail = email.trim()
-
-    if (!/^[a-zA-Z0-9]{1,30}$/.test(nextUsername)) {
-      setProfileFeedback({ type: 'error', text: '用户名只能包含英文字母和数字，且不超过 30 个字符。' })
-      return
-    }
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(nextEmail)) {
-      setProfileFeedback({ type: 'error', text: '请输入有效的邮箱地址。' })
-      return
-    }
-
-    setProfileSaving(true)
-    try {
-      const response = await accountService.updateProfile({ username: nextUsername, email: nextEmail })
-      if (response.user) updateUser(response.user)
-      setProfileFeedback({ type: 'success', text: response.message || '账号信息已更新。' })
-    } catch (error) {
-      setProfileFeedback({
-        type: 'error',
-        text: error instanceof Error ? error.message : '更新账号信息失败。',
-      })
-    } finally {
-      setProfileSaving(false)
-    }
-  }
 
   const changePassword = async (event: React.FormEvent) => {
     event.preventDefault()
@@ -292,22 +251,24 @@ export default function Settings() {
               <FeedbackMessage feedback={avatarFeedback} />
             </div>
 
-            <form className="flex-1 space-y-5" onSubmit={saveProfile}>
+            <div className="flex-1 space-y-5">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <Input
                   label="用户名"
-                  value={username}
+                  value={user?.username ?? ''}
+                  readOnly
                   autoComplete="username"
-                  helperText="仅支持英文字母和数字，登录时可用"
-                  onChange={(event) => setUsername(event.target.value)}
+                  helperText="用户名用于登录，暂不支持修改"
+                  className="cursor-not-allowed bg-secondary-100 dark:bg-secondary-800"
                 />
                 <Input
                   label="邮箱"
                   type="email"
-                  value={email}
-                  autoComplete="email"
+                  value={user?.email ?? ''}
+                  readOnly
                   leftIcon={<AtSign className="h-4 w-4" />}
-                  onChange={(event) => setEmail(event.target.value)}
+                  helperText="用于登录与邮件通知，暂不支持修改"
+                  className="cursor-not-allowed bg-secondary-100 dark:bg-secondary-800"
                 />
               </div>
 
@@ -326,12 +287,10 @@ export default function Settings() {
                 </div>
               </div>
 
-              <FeedbackMessage feedback={profileFeedback} />
-
-              <Button type="submit" loading={profileSaving}>
-                保存账号信息
-              </Button>
-            </form>
+              <p className="text-xs text-secondary-400 dark:text-secondary-500">
+                用户名与邮箱暂不支持自助修改，如有需要请联系管理员。
+              </p>
+            </div>
           </div>
         </CardBody>
       </Card>

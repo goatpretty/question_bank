@@ -55,7 +55,14 @@ const authLimiter = rateLimit({
   skip: (req) => req.method === 'GET',
 });
 
-app.use(helmet());
+app.use(helmet({
+  contentSecurityPolicy: {
+    directives: {
+      // 头像裁剪需要读取本地 blob: 图片；其余 directives 保持 helmet 默认值。
+      imgSrc: ["'self'", 'data:', 'blob:'],
+    },
+  },
+}));
 app.use(cors({
   origin: (origin, callback) => {
     if (process.env.NODE_ENV !== 'production') {

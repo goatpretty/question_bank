@@ -27,10 +27,6 @@ class AccountService extends BaseService {
     super('account');
   }
 
-  async updateProfile(payload: { username: string; email: string }): Promise<AccountResponse> {
-    return this.put<AccountResponse>(`${this.apiBase}/profile`, payload);
-  }
-
   async changePassword(currentPassword: string, newPassword: string): Promise<PasswordResponse> {
     return this.post<PasswordResponse>(`${this.apiBase}/password`, { currentPassword, newPassword });
   }

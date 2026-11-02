@@ -18,7 +18,6 @@ jest.mock('../../services/userService', () => ({
 
 jest.mock('../../services/accountService', () => ({
   accountService: {
-    updateProfile: jest.fn(),
     changePassword: jest.fn(),
     uploadAvatar: jest.fn(),
     removeAvatar: jest.fn(),
@@ -26,7 +25,6 @@ jest.mock('../../services/accountService', () => ({
 }))
 
 const getProfile = userService.getProfile as jest.Mock
-const updateProfile = accountService.updateProfile as jest.Mock
 const changePassword = accountService.changePassword as jest.Mock
 
 const baseUser = {
@@ -62,7 +60,6 @@ describe('Settings Page', () => {
         stats: { totalWrongQuestions: 42, masteredWrongQuestions: 30, masteryRate: 71.4 },
       },
     })
-    updateProfile.mockReset()
     changePassword.mockReset()
   })
 
@@ -77,26 +74,14 @@ describe('Settings Page', () => {
     expect(screen.getByText('查看错题本')).toBeInTheDocument()
   })
 
-  it('updates username and email without email verification', async () => {
-    const updatedUser = { ...baseUser, username: 'newstudent', email: 'new@example.com' }
-    updateProfile.mockResolvedValue({
-      success: true,
-      user: updatedUser,
-      message: '账号信息已更新。',
-    })
-
+  it('shows username and email as read-only account information', async () => {
     renderSettings()
 
-    fireEvent.change(screen.getByLabelText('用户名'), { target: { value: 'newstudent' } })
-    fireEvent.change(screen.getByLabelText('邮箱'), { target: { value: 'new@example.com' } })
-    fireEvent.click(screen.getByRole('button', { name: '保存账号信息' }))
-
-    await waitFor(() => expect(updateProfile).toHaveBeenCalledWith({
-      username: 'newstudent',
-      email: 'new@example.com',
-    }))
-    expect(mockUpdateUser).toHaveBeenCalledWith(updatedUser)
-    expect(await screen.findByText('账号信息已更新。')).toBeInTheDocument()
+    expect(screen.getByLabelText('用户名')).toHaveAttribute('readonly')
+    expect(screen.getByLabelText('邮箱')).toHaveAttribute('readonly')
+    expect(screen.queryByRole('button', { name: '保存用户名' })).not.toBeInTheDocument()
+    expect(screen.getByText('用户名与邮箱暂不支持自助修改，如有需要请联系管理员。')).toBeInTheDocument()
+    await screen.findByText('42')
   })
 
   it('rejects mismatched new passwords before calling the API', async () => {
