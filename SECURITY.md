@@ -4,6 +4,11 @@
 
 当前维护 `0.1.x` 系列。更早版本不保证安全更新。
 
+## 依赖安全
+
+生产依赖的高危/严重告警已清零。剩余 moderate/low 告警的可达性分析见
+[`docs/dependency-status.md`](docs/dependency-status.md)。
+
 ## 报告漏洞
 
 请通过以下方式私下报告：
